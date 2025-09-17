@@ -38,11 +38,3 @@ class TelloSDK:
 
     def close(self):
         self.sock.close()
-
-# 示例用法
-if __name__ == "__main__":
-    sdk = TelloSDK()
-    print(sdk.send_command("command"))      # 进入SDK模式
-    print(sdk.send_command("takeoff"))      # 起飞
-    print(sdk.send_command("land"))         # 降落
-    sdk.close()

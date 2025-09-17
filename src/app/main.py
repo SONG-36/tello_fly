@@ -1,15 +1,17 @@
-# src/app/main.py
-print(">>> main.py 启动！")
-from modules.control import MissionController
-print(">>> 成功import MissionController")
+from app.perception.vision import VisionPerception
+from app.planning.planner import Planner
+from app.control.controller import FlightController
 
 def main():
-    print(">>> main() 正在执行")
-    mission = MissionController()
-    print(">>> MissionController 实例化成功")
-    mission.start_mission('patrol', params={})
-    print(">>> mission.start_mission 完成")
-    mission.loop()
+    print("[MainApp] 系统启动")
+    vision = VisionPerception()
+    planner = Planner()
+    controller = FlightController()
 
-if __name__ == "__main__":
+    while True:
+        obs = vision.detect()
+        plan = planner.plan(obs)
+        controller.execute(plan)
+
+if __name__ == '__main__':
     main()

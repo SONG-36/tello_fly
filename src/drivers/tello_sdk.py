@@ -1,5 +1,3 @@
-# src/drivers/tello_sdk.py
-
 import socket
 import threading
 
@@ -10,31 +8,41 @@ class TelloSDK:
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.sock.bind(self.local_address)
         self.response = None
+        self._running = True    # 新增运行标志
         self.receive_thread = threading.Thread(target=self._receive)
         self.receive_thread.daemon = True
         self.receive_thread.start()
 
-        # 关键点：初始化时自动 handshake
+        # 初始化时自动 handshake
         res = self.send_command("command")
         print(f">>> [TelloSDK] 连接无人机：发送 'command'，回应：{res}")
 
     def _receive(self):
-        while True:
+        while self._running:
             try:
                 self.response, _ = self.sock.recvfrom(1024)
+            except OSError:
+                # socket关闭时recvfrom会报OSError，正常退出线程
+                break
             except Exception as e:
                 print(f"[TelloSDK] Receive error: {e}")
+                break
 
     def send_command(self, command, timeout=5):
         self.response = None
         self.sock.sendto(command.encode('utf-8'), self.tello_address)
+        import time
         for _ in range(timeout * 10):
             if self.response:
                 return self.response.decode('utf-8')
-            else:
-                import time
-                time.sleep(0.1)
+            time.sleep(0.1)
         return "[TelloSDK] Timeout"
 
     def close(self):
-        self.sock.close()
+        self._running = False  # 通知线程优雅退出
+        try:
+            self.sock.close()
+        except Exception:
+            pass
+        if self.receive_thread.is_alive():
+            self.receive_thread.join(timeout=1)

@@ -1,4 +1,4 @@
-from src.drivers.tello_sdk import TelloSDK
+from src.drivers.tello.tello_sdk import TelloSDK
 
 class FlightController:
     """飞行控制模块，封装无人机动作指令下发"""

@@ -1,5 +1,5 @@
 import cv2
-from src.drivers.tello_sdk import TelloSDK
+from src.drivers.tello.tello_sdk import TelloSDK
 import time
 
 def main():
